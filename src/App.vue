@@ -1,29 +1,40 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
+    <div class="month">
+      <Day
+        v-for="n in 31"
+        :key="n"
+        class="day"
+        :style="{
+          top: `calc(${2 * Math.floor(n / 7)}rem + ${3 * Math.floor(n / 7)}px)`,
+          left: `calc(${2 * (n % 7)}rem + ${3 * (n % 7)}px)`
+        }"/>
     </div>
     <router-view/>
   </div>
 </template>
 
+<script lang="ts">
+import Vue from 'vue'
+import Day from './components/Day.vue'
+
+export default Vue.extend({
+  components: {
+    Day
+  }
+})
+</script>
+
 <style lang="scss">
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+* {
+  box-sizing: border-box;
 }
-#nav {
-  padding: 30px;
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-    &.router-link-exact-active {
-      color: #42b983;
-    }
+
+.month {
+  position: relative;
+  margin: 2rem;
+  .day {
+    position: absolute;
   }
 }
 </style>
