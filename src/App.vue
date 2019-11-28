@@ -1,40 +1,17 @@
 <template>
   <div id="app">
-    <div class="month">
-      <Day
-        v-for="n in 31"
-        :key="n"
-        class="day"
-        :style="{
-          top: `calc(${2 * Math.floor(n / 7)}rem + ${3 * Math.floor(n / 7)}px)`,
-          left: `calc(${2 * (n % 7)}rem + ${3 * (n % 7)}px)`
-        }"/>
-    </div>
     <router-view/>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
-import Day from './components/Day.vue'
 
 export default Vue.extend({
-  components: {
-    Day
-  }
 })
 </script>
 
 <style lang="scss">
-* {
-  box-sizing: border-box;
-}
-
-.month {
-  position: relative;
-  margin: 2rem;
-  .day {
-    position: absolute;
-  }
-}
+/*! minireset.css v0.0.5 | MIT License | github.com/jgthms/minireset.css */
+html,body,p,ol,ul,li,dl,dt,dd,blockquote,figure,fieldset,legend,textarea,pre,iframe,hr,h1,h2,h3,h4,h5,h6{margin:0;padding:0}h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal}ul{list-style:none}button,input,select,textarea{margin:0}html{box-sizing:border-box}*,*:before,*:after{box-sizing:inherit}img,video{height:auto;max-width:100%}iframe{border:0}table{border-collapse:collapse;border-spacing:0}td,th{padding:0;text-align:left}
 </style>
