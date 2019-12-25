@@ -5,9 +5,6 @@
     height: `${weeksOfTheMonth() * 2 + 3}rem`
   }">
   <div class="label">
-    <!-- <div class="year">
-      {{ month === 1 ? year : '' }}
-    </div> -->
     {{ month }}월
   </div>
   <div class="days">
@@ -29,14 +26,6 @@ import Vue, { PropType } from 'vue'
 import Day from '@/components/Day.vue'
 import { Day as DayType } from '@/days.csv'
 
-const month = {
-  en: [
-    'January', 'Feburary', 'March', 'April', 'May',
-    'June', 'July', 'August', 'September', 'October',
-    'November', 'December'
-  ]
-}
-
 export default Vue.extend({
   components: { Day },
   props: {
@@ -45,11 +34,6 @@ export default Vue.extend({
     startingDayOfTheWeek: Number,
     noDays: Number,
     diary: Object as PropType<{[index: string]: DayType}>
-  },
-  computed: {
-    monthName (): string {
-      return month['en'][this.month - 1]
-    }
   },
   methods: {
     // @TODO: 날짜 관련된거 유틸리티 폴더 하나 만들어서 몰아넣어도 좋을듯?
