@@ -1,10 +1,11 @@
 <template>
+<!-- @TODO: 뷰와 컴퍼넌트 이름을 둘 다 calendar라고 하니까 헷갈린다 -->
   <div class="container">
     <Calendar
       v-if="startDate"
       :start-date="startDate"
       :end-date="endDate"
-      :days="days"
+      :month-diaries="monthDiaries"
     />
   </div>
 <!-- :days="days" -->
@@ -16,37 +17,17 @@ import { mapGetters, mapActions } from 'vuex'
 
 import Calendar from '@/components/Calendar.vue'
 
-import rawCsvDays, { Day } from '@/days.csv'
-
-const rawDays = rawCsvDays.map<Day>(({ date, status, diary, __parsed_extra: e }) => ({
-  date,
-  status,
-  diary: diary + (e ? ',' + e.join(',') : '')
-}))
-
-const days = rawDays.reduce<{[index: string]: {[index: string]: Day}}>((prev, curr) => ({
-  ...prev,
-  [curr.date.slice(0, 7)]: {
-    ...prev[curr.date.slice(0, 7)],
-    [curr.date]: curr
-  }
-}), {})
-
 export default Vue.extend({
   components: { Calendar },
-  data () {
-    return { days }
-  },
   computed: {
-    ...mapGetters(['startDate', 'endDate'])
+    ...mapGetters(['startDate', 'endDate', 'monthDiaries'])
   },
   methods: {
-    ...mapActions(['getDuration', 'getDayTypes', 'getDiaries'])
+    ...mapActions(['load'])
   },
+  // @TODO: 이 lifecycle에 하는거 맞..나?
   created () {
-    this.getDuration()
-    this.getDayTypes()
-    this.getDiaries()
+    this.load()
   }
 })
 </script>

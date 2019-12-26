@@ -2,41 +2,39 @@
 <div
   class="day"
   :class="{
-    'bootcamp': diary.status === 'bootcamp',
-    'kta': diary.status === 'kta',
-    'staff-duty': diary.status === 'staff-duty',
-    'workday': diary.status === 'workday',
-    'dayoff': diary.status === 'dayoff',
-    'pass': diary.status === 'pass',
-    'leave': diary.status === 'leave',
-    'civilian': diary.status === 'civilian',
-    'today': diary.date === '2019-11-28'
+    'bootcamp': status === 'bootcamp',
+    'kta': status === 'kta',
+    'staff-duty': status === 'staff-duty',
+    'workday': status === 'workday',
+    'dayoff': status === 'dayoff',
+    'pass': status === 'pass',
+    'leave': status === 'leave',
+    'civilian': status === 'civilian'
   }"
   :style="position"
   @mouseenter="hover = true"
   @mouseleave="hover = false"
 >
-<!-- @TODO: 왜 string null이 됐는지 확인... ㅅㅂㅋㅋ -->
-<!-- Math.random() > 0.7 -->
-  <div v-if="diary.diary !== 'null'" class="diary"></div>
+<!-- @TODO: today highlight 해주자ㅎㅎ -->
+  <div v-if="diary && diary.text !== ''" class="diary"></div>
   <div
-    v-if="diary.diary !== 'null' && hover"
+    v-if="diary && diary.text !== '' && hover"
     class="diary-content">
-    {{diary.diary}}
+    {{ diary.text }}
   </div>
 </div>
 </template>
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
-import { Day } from '@/days.csv'
+import { DayDiary } from '@/store'
 
 export default Vue.extend({
   props: {
     dayOfTheWeek: Number,
     weekOfTheMonth: Number,
     margin: Number,
-    diary: Object as PropType<Day>
+    diary: Object as PropType<DayDiary | undefined>
   },
   data () {
     return {
@@ -44,10 +42,16 @@ export default Vue.extend({
     }
   },
   computed: {
+    status () {
+      const diary = this.diary
+      return diary ? diary.dayType.name : undefined
+    },
     position (): { [index: string]: string } {
+      // @TODO: js involve하지 말고 좌표를 class로 주는게 좋을듯.
+      // @TODO: 아예 레이아웃 CSS 아키텍처를 전체적으로 고민할 필요가 있어보임.
       return {
-        top: `calc(${2 * this.weekOfTheMonth}rem + ${this.margin * this.weekOfTheMonth}px)`,
-        left: `calc(${2 * this.dayOfTheWeek}rem + ${this.margin * this.dayOfTheWeek}px)`
+        top: `calc(${2 * (this.weekOfTheMonth as number)}rem + ${(this.margin as number) * (this.weekOfTheMonth as number)}px)`,
+        left: `calc(${2 * (this.dayOfTheWeek as number)}rem + ${(this.margin as number) * (this.dayOfTheWeek as number)}px)`
       }
     }
   }

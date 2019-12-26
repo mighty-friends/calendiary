@@ -9,12 +9,12 @@
   </div>
   <div class="days">
     <Day
-      v-for="n in noDays"
+      v-for="n in daysCount"
       :key="n"
       :day-of-the-week="dayOfTheWeek(n)"
       :week-of-the-month="weekOfTheMonth(n)"
       :margin="4"
-      :diary="diary[`${year}-${month > 9 ? month : '0' + month}-${n > 9 ? n : '0' + n}`]"
+      :diary="diary[n]"
     />
     <!-- @TODO: > 9 ? 저거 좀 어떻게 없애보자.. ㅅㅂ -->
   </div>
@@ -24,7 +24,7 @@
 <script lang="ts">
 import Vue, { PropType } from 'vue'
 import Day from '@/components/Day.vue'
-import { Day as DayType } from '@/days.csv'
+import { DayDiary } from '@/store'
 
 export default Vue.extend({
   components: { Day },
@@ -32,8 +32,12 @@ export default Vue.extend({
     year: Number,
     month: Number,
     startingDayOfTheWeek: Number,
-    noDays: Number,
-    diary: Object as PropType<{[index: string]: DayType}>
+    diary: Array as PropType<DayDiary[]>
+  },
+  computed: {
+    daysCount () {
+      return this.diary.length
+    }
   },
   methods: {
     // @TODO: 날짜 관련된거 유틸리티 폴더 하나 만들어서 몰아넣어도 좋을듯?
@@ -47,7 +51,7 @@ export default Vue.extend({
       return Math.floor(this.offsetFromDate0(day) / 7)
     },
     weeksOfTheMonth (): number {
-      return this.weekOfTheMonth(this.noDays)
+      return this.weekOfTheMonth(this.daysCount)
     }
   }
 })

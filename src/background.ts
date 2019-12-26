@@ -21,16 +21,14 @@ protocol.registerSchemesAsPrivileged([
 
 const db = init();
 
-ipcMain.handle('getDuration', async _ => {
-  return getDuration(await db)
-})
+ipcMain.handle('load', async _ => {
+  const [duration, dayTypes, diaries] = await Promise.all([
+    getDuration(await db),
+    getDayTypes(await db),
+    getDiaries(await db)
+  ])
 
-ipcMain.handle('getDayTypes', async _ => {
-  return getDayTypes(await db)
-})
-
-ipcMain.handle('getDiaries', async _ => {
-  return getDiaries(await db)
+  return { duration, dayTypes, diaries }
 })
 
 async function createWindow() {
