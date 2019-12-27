@@ -12,9 +12,7 @@
     "baseUrl": ".",
     "types": [
       "webpack-env",
-      "jest",
-      "src/days.ts",
-      "src/csv.d.ts"
+      "jest"
     ],
     "paths": {
       "@/*": [
