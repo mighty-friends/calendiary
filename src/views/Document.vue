@@ -38,9 +38,6 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
-.container {
-  background-color: var(--body-background);
-}
 </style>
 
 <style lang="scss">

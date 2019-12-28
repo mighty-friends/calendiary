@@ -1,22 +1,26 @@
 <template>
 <div
-  class="month"
-  :style="{
-    height: `${weeksOfTheMonth() * 2 + 3}rem`
-  }">
-  <div class="label">
-    {{ month }}월
-  </div>
-  <div class="days">
-    <Day
-      v-for="n in daysCount"
-      :key="n"
-      :day-of-the-week="dayOfTheWeek(n)"
-      :week-of-the-month="weekOfTheMonth(n)"
-      :margin="4"
-      :diary="diary[n]"
-    />
-    <!-- @TODO: > 9 ? 저거 좀 어떻게 없애보자.. ㅅㅂ -->
+  class="column is-half-mobile is-one-third-tablet is-one-quarter-widescreen">
+  <div class="month-container">
+    <div class="label">
+      {{ month }}월
+    </div>
+    <div
+      class="month"
+      :class="{
+        'of-4-weeks': weeksOfTheMonth() === 4,
+        'of-5-weeks': weeksOfTheMonth() === 5,
+        'of-6-weeks': weeksOfTheMonth() === 6
+      }">
+      <Day
+        v-for="n in daysCount"
+        :key="n"
+        :day-of-the-week="dayOfTheWeek(n)"
+        :week-of-the-month="weekOfTheMonth(n)"
+        :margin="1"
+        :diary="diary[n]"
+      />
+    </div>
   </div>
 </div>
 </template>
@@ -50,35 +54,46 @@ export default Vue.extend({
     weekOfTheMonth (day: number): number {
       return Math.floor(this.offsetFromDate0(day) / 7)
     },
+    // 위의 세 메서드는 offset이지만 이 메서드는 갯수이기 때문에 +1 이 필요하다.
     weeksOfTheMonth (): number {
-      return this.weekOfTheMonth(this.daysCount)
+      return this.weekOfTheMonth(this.daysCount) + 1
     }
   }
 })
 </script>
 
 <style lang="scss" scoped>
-.month {
-  margin: 3rem 0;
-  break-inside: avoid;
-
-  &:first-child {
-    margin-top: 0;
-  }
+.month-container {
+  margin: 0 auto 3rem;
+  width: 226px;
 
   .label {
-    text-align: right;
-    display: inline-block;
-    margin-right: 2rem;
-    width: 2rem;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    font-size: 1rem;
-    color: #696969;
+    font-size: 16px;
+    color: var(--body-color);
+
+    margin: 0 0 24px;
   }
-  .days {
+
+  .month {
     position: relative;
     display: inline-block;
-    top: -0.75rem;
+
+    width: 226px;
+
+    $day-size: 28px;
+    $day-margin: 5px;
+
+    &.of-4-weeks {
+      height: $day-size * 4 + $day-margin * 3;
+    }
+
+    &.of-5-weeks {
+      height: $day-size * 5 + $day-margin * 4;
+    }
+
+    &.of-6-weeks {
+      height: $day-size * 6 + $day-margin * 5;
+    }
   }
 }
 </style>

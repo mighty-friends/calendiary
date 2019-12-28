@@ -78,6 +78,8 @@ function loadWith({ path, on: win }: { path: string, on: BrowserWindow }) {
 function createDocumentWindow(filePath: string): BrowserWindow {
   // Create the browser window.
   const win = new BrowserWindow({
+    width: 1300,
+    height: 800,
     webPreferences: {
       nodeIntegration: true,
       devTools: isDevelopment,
@@ -98,6 +100,7 @@ function createDocumentWindow(filePath: string): BrowserWindow {
   return win
 }
 
+// @TODO: Light <-> Dark 전환할 때마다 maximize 가능해짐..
 function createLaunchDialogWindow() {
   // Create the browser window.
   launchDialog = new BrowserWindow({

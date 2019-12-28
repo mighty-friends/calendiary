@@ -2,16 +2,20 @@
 <div
   class="day"
   :class="{
-    'bootcamp': status === 'bootcamp',
-    'kta': status === 'kta',
-    'staff-duty': status === 'staff-duty',
-    'workday': status === 'workday',
-    'dayoff': status === 'dayoff',
-    'pass': status === 'pass',
-    'leave': status === 'leave',
-    'civilian': status === 'civilian'
+    'of-1st-week': weekOfTheMonth === 0,
+    'of-2nd-week': weekOfTheMonth === 1,
+    'of-3rd-week': weekOfTheMonth === 2,
+    'of-4th-week': weekOfTheMonth === 3,
+    'of-5th-week': weekOfTheMonth === 4,
+    'of-6th-week': weekOfTheMonth === 5,
+    'of-1st-day': dayOfTheWeek === 0,
+    'of-2nd-day': dayOfTheWeek === 1,
+    'of-3rd-day': dayOfTheWeek === 2,
+    'of-4th-day': dayOfTheWeek === 3,
+    'of-5th-day': dayOfTheWeek === 4,
+    'of-6th-day': dayOfTheWeek === 5,
+    'of-7th-day': dayOfTheWeek === 6,
   }"
-  :style="position"
   @mouseenter="hover = true"
   @mouseleave="hover = false"
 >
@@ -45,140 +49,75 @@ export default Vue.extend({
     status () {
       const diary = this.diary
       return diary ? diary.dayType.name : undefined
-    },
-    position (): { [index: string]: string } {
-      // @TODO: js involve하지 말고 좌표를 class로 주는게 좋을듯.
-      // @TODO: 아예 레이아웃 CSS 아키텍처를 전체적으로 고민할 필요가 있어보임.
-      return {
-        top: `calc(${2 * (this.weekOfTheMonth as number)}rem + ${(this.margin as number) * (this.weekOfTheMonth as number)}px)`,
-        left: `calc(${2 * (this.dayOfTheWeek as number)}rem + ${(this.margin as number) * (this.dayOfTheWeek as number)}px)`
-      }
     }
   }
 })
 </script>
 
 <style lang="scss" scoped>
-$day-size: 2rem;
-$day-border-radius: 0.375rem;
-$day-hover-border: 0.125rem;
-$diary-size: 0.5rem;
-$diary-margin: ($day-size - $diary-size) / 2;
-
-$training: lighten(#FF9AA2, 12%); // Light Salmon Pink
-$workday: lighten(#FFB7B2, 11%); // Melon
-$dayoff: lighten(#FFDAC1, 9%); // Very Pale Orange
-$pass: lighten(#E2F0CB, 5%); // Dirty White
-$leave: lighten(#B5EAD7, 5%); // Magic Mint
-$civilian: lighten(#C7CEEA, 7%); // Periwinkle
-
 .day {
-  height: $day-size;
-  width: $day-size;
-  background-color: whitesmoke;
-  border-radius: $day-border-radius;
+  $size: 28px;
+  $margin: 5px;
+
+  height: $size;
+  width: $size;
+  background-color: var(--body-secondary-background);
+
+  $border-radius: 6px;
+  border-radius: $border-radius;
   cursor: pointer;
 
   position: absolute;
+
+  &.of-1st-week { top: 0; }
+  &.of-2nd-week { top: 33px; }
+  &.of-3rd-week { top: 66px; }
+  &.of-4th-week { top: 99px; }
+  &.of-5th-week { top: 132px; }
+  &.of-6th-week { top: 165px; }
+  &.of-1st-day { left: 0; }
+  &.of-2nd-day { left: 33px; }
+  &.of-3rd-day { left: 66px; }
+  &.of-4th-day { left: 99px; }
+  &.of-5th-day { left: 132px; }
+  &.of-6th-day { left: 165px; }
+  &.of-7th-day { left: 198px; }
 
   display: flex;
   align-items: center;
   justify-content: center;
 
   &:hover {
-    border: $day-hover-border solid #dbdbdb;
-    background-color: #efefef;
-  }
-
-  &.bootcamp, &.kta, &.staff-duty {
-    background-color: $training;
-    &:hover {
-      border: $day-hover-border solid darken($training, 5%);
-      background-color: darken($training, 4%);
-    }
-    .diary {
-      background-color: darken($training, 10%);
-    }
-  }
-
-  &.workday {
-    background-color: $workday;
-    &:hover {
-      border: $day-hover-border solid darken($workday, 6%);
-      background-color: darken($workday, 3%);
-    }
-    .diary {
-      background-color: darken($workday, 10%);
-    }
-  }
-
-  &.dayoff {
-    background-color: $dayoff;
-    &:hover {
-      border: $day-hover-border solid darken($dayoff, 7%);
-      background-color: darken($dayoff, 5%);
-    }
-    .diary {
-      background-color: darken($dayoff, 10%);
-    }
-  }
-
-  &.pass {
-    background-color: $pass;
-    &:hover {
-      border: $day-hover-border solid darken($pass, 8%);
-      background-color: darken($pass, 5%);
-    }
-    .diary {
-      background-color: darken($pass, 12%);
-    }
-  }
-
-  &.leave {
-    background-color: $leave;
-    &:hover {
-      border: $day-hover-border solid darken($leave, 5%);
-      background-color: darken($leave, 4%);
-    }
-    .diary {
-      background-color: darken($leave, 10%);
-    }
-  }
-
-  &.civilian {
-    background-color: $civilian;
-    &:hover {
-      border: $day-hover-border solid darken($civilian, 6%);
-      background-color: darken($civilian, 4%);
-    }
-    .diary {
-      background-color: darken($civilian, 10%);
-    }
+    // @TODO: 라이트/다크 좀 더 근본있는 컬러로 교체 필요
+    $border: 1px;
+    border: $border solid var(--body-border);
+    background-color: var(--body-tertiary-background);
+    transition: border 0.2s, background-color 0.2s;
   }
 
   .diary {
-    height: $diary-size;
-    width: $diary-size;
+    $size: 8px;
+    height: $size;
+    width: $size;
     border-radius: 50%;
-    background-color: #dbdbdb;
+    background-color: var(--body-border);
   }
 
   .diary-content {
     position: absolute;
-    left: calc(100% + 6px);
-    top: -2px;
+    top: 32px;
+    left: -1px;
     width: 20rem;
     z-index: 2;
     transform: translateZ(1px);
 
-    border: 1px solid whitesmoke;
+    border: 1px solid var(--body-secondary-background);
     border-radius: 0.25rem;
     padding: 1rem 2rem;
     box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.12);
-    background-color: white;
 
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    color: #363636;
+    background-color: var(--body-secondary-background);
+    color: var(--body-color);
     line-height: 1.6;
   }
 }
