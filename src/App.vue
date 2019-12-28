@@ -18,8 +18,8 @@ export default Vue.extend({
     --body-background: white;
   }
   @media (prefers-color-scheme: dark) {
-    --body-color: #ddd;
-    --body-background: rgb(62, 59, 62);
+    --body-color: #dddddd;
+    --body-background: #3e3b3e;
   }
 }
 

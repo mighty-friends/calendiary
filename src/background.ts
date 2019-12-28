@@ -1,4 +1,12 @@
-import { app, protocol, BrowserWindow, dialog, ipcMain } from 'electron'
+import {
+  app,
+  protocol,
+  BrowserWindow,
+  dialog,
+  systemPreferences,
+  nativeTheme,
+  ipcMain
+} from 'electron'
 import {
   createProtocol,
   installVueDevtools
@@ -74,7 +82,8 @@ function createDocumentWindow(filePath: string): BrowserWindow {
       nodeIntegration: true,
       devTools: isDevelopment,
       scrollBounce: true
-    }
+    },
+    backgroundColor: nativeTheme.shouldUseDarkColors ? '#3e3b3e' : '#ffffff'
   })
 
   win.setRepresentedFilename(filePath)
@@ -103,10 +112,15 @@ function createLaunchDialogWindow() {
     },
     vibrancy: 'sidebar',
     frame: false,
-    titleBarStyle: 'hidden'
+    titleBarStyle: 'hidden',
+    show: false
   })
 
   loadWith({ path: 'launch-dialog', on: launchDialog })
+
+  launchDialog.on('ready-to-show', () => {
+    launchDialog?.show()
+  })
 
   launchDialog.on('closed', () => {
     launchDialog = undefined

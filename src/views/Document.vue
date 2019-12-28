@@ -25,6 +25,14 @@ export default Vue.extend({
   },
   created () {
     this.load()
+  },
+  beforeRouteEnter (to, from, next) {
+    document.documentElement.setAttribute('class', 'document')
+    next()
+  },
+  beforeRouteLeave (to, from, next) {
+    document.documentElement.setAttribute('class', '')
+    next()
   }
 })
 </script>
@@ -32,5 +40,11 @@ export default Vue.extend({
 <style lang="scss" scoped>
 .container {
   background-color: var(--body-background);
+}
+</style>
+
+<style lang="scss">
+.document {
+  background-color: var(--body-background)
 }
 </style>

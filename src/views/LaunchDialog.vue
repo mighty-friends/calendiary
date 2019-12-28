@@ -88,7 +88,7 @@ export default Vue.extend({
         border-radius: 5px;
 
         &:hover {
-          background-color: rgba(48, 48, 48, 0.7);
+          background-color: rgba(0, 0, 0, 0.1);
         }
       }
     }
