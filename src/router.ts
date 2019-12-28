@@ -1,15 +1,22 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Calendar from '@/views/Calendar.vue'
+import Document from '@/views/Document.vue'
+import LaunchDialog from '@/views/LaunchDialog.vue'
 
 Vue.use(Router)
 
 export default new Router({
+  mode: 'history',
   routes: [
     {
-      path: '/',
-      name: 'home',
-      component: Calendar
+      path: '/document',
+      name: 'document',
+      component: Document
+    },
+    {
+      path: '/launch-dialog',
+      name: 'launch-dialog',
+      component: LaunchDialog
     }
   ]
 })

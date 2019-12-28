@@ -1,12 +1,18 @@
-import { app, protocol, BrowserWindow, ipcMain } from 'electron'
-import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib'
-import { init, getDuration, getDayTypes, getDiaries, Duration, DayType, Diary } from './model/model'
+import { app, protocol, BrowserWindow, dialog, ipcMain } from 'electron'
+import {
+  createProtocol,
+  installVueDevtools
+} from 'vue-cli-plugin-electron-builder/lib'
+import { init, getDuration, getDayTypes, getDiaries } from './model/model'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
+// @TODO: BrowerWindow[] 로 고치고 여러 파일 열 수 있게!
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let win: BrowserWindow | null
+let launchDialog: BrowserWindow | undefined
+const documentWindows: BrowserWindow[] = []
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -18,6 +24,8 @@ protocol.registerSchemesAsPrivileged([
     }
   }
 ])
+
+/// -------------------------- RENDER PROCESS IPC -------------------------- ///
 
 const db = init();
 
@@ -31,35 +39,82 @@ ipcMain.handle('load', async _ => {
   return { duration, dayTypes, diaries }
 })
 
-async function createWindow() {
-  // @TODO: close db when app is being closed
-
-  // Create the browser window.
-  win = new BrowserWindow({
-    width: 800,
-    height: 600,
-    webPreferences: {
-      nodeIntegration: true
-    }
+ipcMain.handle('open-file', async _ => {
+  const { canceled, filePaths: [filePath] } = await dialog.showOpenDialog({
+    filters: [],
+    properties: ['openFile', 'createDirectory']
   })
 
-  // win.setRepresentedFilename('/Users/yujingaya/Downloads/기경.png')
-  // win.setDocumentEdited(true)
+  if (!canceled) {
+    documentWindows.push(createDocumentWindow(filePath))
+    launchDialog?.close()
+    launchDialog = undefined
+  }
+})
 
+
+/// ------------------------------ WINDOWING ------------------------------- ///
+
+function loadWith({ path, on: win }: { path: string, on: BrowserWindow }) {
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
-    win.loadURL(process.env.WEBPACK_DEV_SERVER_URL as string)
-    if (!process.env.IS_TEST) win.webContents.openDevTools()
+    win.loadURL(`${process.env.WEBPACK_DEV_SERVER_URL}${path}`)
+    // if (!process.env.IS_TEST) win.webContents.openDevTools()
   } else {
     createProtocol('app')
     // Load the index.html when not in development
-    win.loadURL('app://./index.html')
+    win.loadURL(`app://./index.html/${path}`)
   }
+}
+
+function createDocumentWindow(filePath: string): BrowserWindow {
+  // Create the browser window.
+  const win = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true,
+      devTools: isDevelopment,
+      scrollBounce: true
+    }
+  })
+
+  win.setRepresentedFilename(filePath)
+
+  loadWith({ path: 'document', on: win })
 
   win.on('closed', () => {
-    win = null
+    const index = documentWindows.indexOf(win)
+    documentWindows.splice(index, 1)
+  })
+
+  return win
+}
+
+function createLaunchDialogWindow() {
+  // Create the browser window.
+  launchDialog = new BrowserWindow({
+    width: 650,
+    height: 400,
+    center: true,
+    resizable: false,
+    maximizable: false,
+    webPreferences: {
+      nodeIntegration: true,
+      devTools: isDevelopment
+    },
+    vibrancy: 'sidebar',
+    frame: false,
+    titleBarStyle: 'hidden'
+  })
+
+  loadWith({ path: 'launch-dialog', on: launchDialog })
+
+  launchDialog.on('closed', () => {
+    launchDialog = undefined
   })
 }
+
+
+/// ------------------------- GLOBAL APP LIFECYCLE ------------------------- ///
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
@@ -73,8 +128,8 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if (win === null) {
-    createWindow()
+  if (documentWindows.length === 0 && launchDialog === undefined) {
+    createLaunchDialogWindow()
   }
 })
 
@@ -96,7 +151,7 @@ app.on('ready', async () => {
     }
 
   }
-  createWindow()
+  createLaunchDialogWindow()
 })
 
 // Exit cleanly on request from parent process in development mode.

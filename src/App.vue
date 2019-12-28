@@ -1,7 +1,5 @@
 <template>
-  <div id="app">
-    <router-view/>
-  </div>
+  <router-view/>
 </template>
 
 <script lang="ts">
@@ -13,4 +11,19 @@ export default Vue.extend({
 
 <style lang="scss">
 @use './assets/minireset.css';
+
+:root {
+  @media (prefers-color-scheme: light) {
+    --body-color: black;
+    --body-background: white;
+  }
+  @media (prefers-color-scheme: dark) {
+    --body-color: #ddd;
+    --body-background: rgb(62, 59, 62);
+  }
+}
+
+body {
+  font: caption;
+}
 </style>

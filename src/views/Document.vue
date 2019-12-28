@@ -1,5 +1,4 @@
 <template>
-<!-- @TODO: 뷰와 컴퍼넌트 이름을 둘 다 calendar라고 하니까 헷갈린다 -->
   <div class="container">
     <Calendar
       v-if="startDate"
@@ -8,7 +7,6 @@
       :month-diaries="monthDiaries"
     />
   </div>
-<!-- :days="days" -->
 </template>
 
 <script lang="ts">
@@ -25,7 +23,6 @@ export default Vue.extend({
   methods: {
     ...mapActions(['load'])
   },
-  // @TODO: 이 lifecycle에 하는거 맞..나?
   created () {
     this.load()
   }
@@ -33,4 +30,7 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
+.container {
+  background-color: var(--body-background);
+}
 </style>
