@@ -7,7 +7,7 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 
 export async function init(): Promise<Database> {
   // @TODO: build 환경에서도 접근 가능한 path 찾기
-  const db = await sqlite.open('./model.sql')
+  const db = await sqlite.open('./model.calendiary')
 
   return db.migrate({
     force: isDevelopment ? 'last' : undefined,

@@ -41,7 +41,7 @@ ipcMain.handle('load', async _ => {
 
 ipcMain.handle('open-file', async _ => {
   const { canceled, filePaths: [filePath] } = await dialog.showOpenDialog({
-    filters: [],
+    filters: [{ name: 'calendiary', extensions: [ 'calendiary' ] }],
     properties: ['openFile', 'createDirectory']
   })
 

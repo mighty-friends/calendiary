@@ -32,6 +32,7 @@ value TEXT NOT NULL UNIQUE
 
 INSERT INTO Settings (key, value) VALUES ("startDate", 17917);
 INSERT INTO Settings (key, value) VALUES ("endDate", 18501);
+-- @TODO: INSERT INTO Settings (key, value) VALUES ("nameOfCalendar", "");
 
 
 -- Down

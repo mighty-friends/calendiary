@@ -1,5 +1,5 @@
 -- Up
-INSERT INTO Diary (date, dayType, text) VALUES (17917, 6, "");
+INSERT INTO Diary (date, dayType, text) VALUES (17917, 6, "입대");
 INSERT INTO Diary (date, dayType, text) VALUES (17918, 6, "");
 INSERT INTO Diary (date, dayType, text) VALUES (17919, 6, "");
 INSERT INTO Diary (date, dayType, text) VALUES (17920, 6, "");
