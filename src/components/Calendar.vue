@@ -4,6 +4,7 @@
     <!-- @TODO: Settings에서 이름 가져오기/수정기능 -->
   </div>
   <!-- @TODO: 연도 표시 -->
+  <!-- cf: https://tobiasahlin.com/blog/flexbox-break-to-new-row/ -->
   <div class="months columns is-multiline is-mobile is-gapless">
     <Month
       v-for="({ year, month, startingDayOfTheWeek, days }) in monthDiaries"

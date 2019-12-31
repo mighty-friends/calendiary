@@ -24,3 +24,5 @@ yarn-error.log*
 /dist_electron
 
 model.calendiary
+
+build/

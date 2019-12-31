@@ -3,16 +3,21 @@
 
 import sqlite, { Database } from 'sqlite'
 
+declare const __static: string
+
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
-export async function init(): Promise<Database> {
-  // @TODO: build 환경에서도 접근 가능한 path 찾기
-  const db = await sqlite.open('./model.calendiary')
+export async function init(path: string): Promise<Database> {
+  const db = await sqlite.open(path)
 
   return db.migrate({
     force: isDevelopment ? 'last' : undefined,
-    migrationsPath: 'src/model/migrations/'
+    migrationsPath: __static + '/migrations/'
   })
+}
+
+export async function open(path: string): Promise<Database> {
+  return sqlite.open(path)
 }
 
 export interface Duration { startDate: number, endDate: number }

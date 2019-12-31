@@ -21,11 +21,11 @@
 >
 <!-- @TODO: today highlight 해주자ㅎㅎ -->
   <div v-if="diary && diary.text !== ''" class="diary"></div>
-  <div
+  <DayPopover
     v-if="diary && diary.text !== '' && hover"
-    class="diary-content">
-    {{ diary.text }}
-  </div>
+    class="diary-content"
+    :diary="diary">
+  </DayPopover>
 </div>
 </template>
 
@@ -33,7 +33,10 @@
 import Vue, { PropType } from 'vue'
 import { DayDiary } from '@/store'
 
+import DayPopover from '@/components/DayPopover.vue'
+
 export default Vue.extend({
+  components: { DayPopover },
   props: {
     dayOfTheWeek: Number,
     weekOfTheMonth: Number,

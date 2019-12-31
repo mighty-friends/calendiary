@@ -14,7 +14,7 @@
       </div>
       <div class="right">
         <ul class="buttons">
-          <li class="button">새 캘린터</li>
+          <li @click="newFile" class="button">새 캘린터</li>
           <li @click="openFile" class="button">열기...</li>
           <!-- <li class="button">«파일 이름» 다시 열기</li> -->
         </ul>
@@ -34,6 +34,9 @@ export default Vue.extend({
     }
   },
   methods: {
+    newFile () {
+      ipcRenderer.invoke('new-file')
+    },
     openFile () {
       ipcRenderer.invoke('open-file')
     }

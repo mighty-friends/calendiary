@@ -1,172 +1,83 @@
-import {
-  app,
-  protocol,
-  BrowserWindow,
-  dialog,
-  systemPreferences,
-  nativeTheme,
-  ipcMain
-} from 'electron'
-import {
-  createProtocol,
-  installVueDevtools
-} from 'vue-cli-plugin-electron-builder/lib'
-import { init, getDuration, getDayTypes, getDiaries } from './model/model'
+import { app, protocol, dialog, ipcMain } from 'electron'
+import { installVueDevtools } from 'vue-cli-plugin-electron-builder/lib'
+
+import { findDocumentOf, openNewDocumentWith, state } from './background/app-state'
+import { createLaunchDialogWindow } from './background/window'
+import { getDuration, getDayTypes, getDiaries } from './background/model'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
-// @TODO: BrowerWindow[] 로 고치고 여러 파일 열 수 있게!
-
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
-let launchDialog: BrowserWindow | undefined
-const documentWindows: BrowserWindow[] = []
-
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
-  {
-    scheme: 'app',
-    privileges: {
-      secure: true,
-      standard: true
-    }
-  }
+  { scheme: 'app', privileges: { secure: true, standard: true } }
 ])
 
 /// -------------------------- RENDER PROCESS IPC -------------------------- ///
 
-const db = init();
+// ipcMain.handle('new-file', async _ => {
+//   const { canceled, filePath } = await dialog.showSaveDialog({
+//     filters: [{ name: 'calendiary', extensions: [ 'calendiary' ] }]
+//   })
 
-ipcMain.handle('load', async _ => {
+//   if (!canceled && filePath) {
+//     const database = init(filePath)
+//     const window = createDocumentWindow(filePath)
+
+//     documents.push({ window, database })
+
+//     launchDialog?.close()
+//     launchDialog = undefined
+//   }
+// })
+
+ipcMain.handle('load', async ({ sender }) => {
+  const { database } = findDocumentOf({ sender })!
+
   const [duration, dayTypes, diaries] = await Promise.all([
-    getDuration(await db),
-    getDayTypes(await db),
-    getDiaries(await db)
+    getDuration(await database),
+    getDayTypes(await database),
+    getDiaries(await database)
   ])
 
   return { duration, dayTypes, diaries }
 })
 
 ipcMain.handle('open-file', async _ => {
-  const { canceled, filePaths: [filePath] } = await dialog.showOpenDialog({
+  const { canceled, filePaths: [path] } = await dialog.showOpenDialog({
     filters: [{ name: 'calendiary', extensions: [ 'calendiary' ] }],
     properties: ['openFile', 'createDirectory']
   })
 
   if (!canceled) {
-    documentWindows.push(createDocumentWindow(filePath))
-    launchDialog?.close()
-    launchDialog = undefined
+    openNewDocumentWith({ path })
   }
 })
-
-
-/// ------------------------------ WINDOWING ------------------------------- ///
-
-function loadWith({ path, on: win }: { path: string, on: BrowserWindow }) {
-  if (process.env.WEBPACK_DEV_SERVER_URL) {
-    // Load the url of the dev server if in development mode
-    win.loadURL(`${process.env.WEBPACK_DEV_SERVER_URL}${path}`)
-    // if (!process.env.IS_TEST) win.webContents.openDevTools()
-  } else {
-    createProtocol('app')
-    // Load the index.html when not in development
-    win.loadURL(`app://./index.html/${path}`)
-  }
-}
-
-function createDocumentWindow(filePath: string): BrowserWindow {
-  // Create the browser window.
-  const win = new BrowserWindow({
-    width: 1300,
-    height: 800,
-    webPreferences: {
-      nodeIntegration: true,
-      devTools: isDevelopment,
-      scrollBounce: true
-    },
-    backgroundColor: nativeTheme.shouldUseDarkColors ? '#3e3b3e' : '#ffffff'
-  })
-
-  win.setRepresentedFilename(filePath)
-
-  loadWith({ path: 'document', on: win })
-
-  win.on('closed', () => {
-    const index = documentWindows.indexOf(win)
-    documentWindows.splice(index, 1)
-  })
-
-  return win
-}
-
-// @TODO: Light <-> Dark 전환할 때마다 maximize 가능해짐..
-function createLaunchDialogWindow() {
-  // Create the browser window.
-  launchDialog = new BrowserWindow({
-    width: 650,
-    height: 400,
-    center: true,
-    resizable: false,
-    maximizable: false,
-    webPreferences: {
-      nodeIntegration: true,
-      devTools: isDevelopment
-    },
-    vibrancy: 'sidebar',
-    frame: false,
-    titleBarStyle: 'hidden',
-    show: false
-  })
-
-  loadWith({ path: 'launch-dialog', on: launchDialog })
-
-  launchDialog.on('ready-to-show', () => {
-    launchDialog?.show()
-  })
-
-  launchDialog.on('closed', () => {
-    launchDialog = undefined
-  })
-}
-
 
 /// ------------------------- GLOBAL APP LIFECYCLE ------------------------- ///
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
-  // On macOS it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
+  // macOS에서는 모든 창이 닫혀도 유저가 cmd+Q로 종료하기 전까지는 프로그램을 종료하지 않는다
   if (process.platform !== 'darwin') {
     app.quit()
   }
 })
 
 app.on('activate', () => {
-  // On macOS it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (documentWindows.length === 0 && launchDialog === undefined) {
+  // macOS에서 창이 없는 상태에서 독 아이콘이 클릭된 경우
+  if (state() === "empty") {
     createLaunchDialogWindow()
   }
 })
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
+// 창 만들 준비 완료. 몇몇 API는 초기화되지 않음.
 app.on('ready', async () => {
   if (isDevelopment && !process.env.IS_TEST) {
-    // Install Vue Devtools
-    // Devtools extensions are broken in Electron 6.0.0 and greater
-    // See https://github.com/nklayman/vue-cli-plugin-electron-builder/issues/378 for more info
-    // Electron will not launch with Devtools extensions installed on Windows 10 with dark mode
-    // If you are not using Windows 10 dark mode, you may uncomment these lines
-    // In addition, if the linked issue is closed, you can upgrade electron and uncomment these lines
     try {
       await installVueDevtools()
     } catch (e) {
       console.error('Vue Devtools failed to install:', e.toString())
     }
-
   }
   createLaunchDialogWindow()
 })
