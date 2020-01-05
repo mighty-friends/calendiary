@@ -11,7 +11,6 @@ export default Vue.extend({
 
 <style lang="scss">
 @use './assets/minireset.css';
-@use './assets/column.css';
 
 :root {
   @media (prefers-color-scheme: light) {
