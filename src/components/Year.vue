@@ -37,7 +37,7 @@ export default Vue.extend({
   .label {
     max-width: 1096px;
     margin: 0 auto;
-    padding: 24px;
+    padding: 12px;
     font-size: 24px;
     color: var(--body-color)
   }
@@ -47,7 +47,7 @@ export default Vue.extend({
     margin: 0 auto;
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-around;
+    justify-content: space-between;
   }
 }
 </style>

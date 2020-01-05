@@ -57,7 +57,7 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
 .month-container {
-  margin: 24px;
+  margin: 12px;
   width: 226px;
 
   .label {
