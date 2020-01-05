@@ -1,25 +1,18 @@
 <template>
 <div
   class="day"
+  :class="{today: isToday}"
   @mouseenter="hover = true"
-  @mouseleave="hover = false"
->
-<!-- @TODO: today highlight 해주자ㅎㅎ -->
-  <div v-if="dayData && dayData.text !== ''" class="diary"></div>
-  <DayPopover
-    v-if="dayData && dayData.text !== '' && hover"
-    class="diary-content">
-  </DayPopover>
+  @mouseleave="hover = false">
+  <div v-if="dayData && dayData.text !== ''" class="content-indicator"></div>
 </div>
 </template>
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
-import DayPopover from '@/components/DayPopover.vue'
-import { Day } from '@/store'
+import { Day, pad } from '@/store'
 
 export default Vue.extend({
-  components: { DayPopover },
   props: {
     year: Number,
     month: Number,
@@ -35,6 +28,12 @@ export default Vue.extend({
     status () {
       const day = this.dayData
       return day ? day.dayTypeId : undefined
+    },
+    isToday (): boolean {
+      const today = new Date()
+      return today.getUTCFullYear() === this.year
+        && today.getUTCMonth() === this.month
+        && today.getUTCDate() === this.day
     }
   }
 })
@@ -59,6 +58,10 @@ export default Vue.extend({
   align-items: center;
   justify-content: center;
 
+  &.today {
+    background-color: var(--body-tertiary-background);
+  }
+
   &:hover {
     // @TODO: 라이트/다크 좀 더 근본있는 컬러로 교체 필요
     $border: 1px;
@@ -67,30 +70,12 @@ export default Vue.extend({
     transition: border 0.2s, background-color 0.2s;
   }
 
-  .diary {
+  .content-indicator {
     $size: 8px;
     height: $size;
     width: $size;
     border-radius: 50%;
     background-color: var(--body-border);
-  }
-
-  .diary-content {
-    position: absolute;
-    top: 32px;
-    left: -1px;
-    width: 20rem;
-    z-index: 2;
-    transform: translateZ(1px);
-
-    border: 1px solid var(--body-secondary-background);
-    border-radius: 0.25rem;
-    padding: 1rem 2rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.12);
-
-    background-color: var(--body-secondary-background);
-    color: var(--body-color);
-    line-height: 1.6;
   }
 }
 </style>
