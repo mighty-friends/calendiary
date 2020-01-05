@@ -39,7 +39,7 @@ export default Vue.extend({
     margin: 0 auto;
     padding: 24px;
     font-size: 24px;
-    color: var(--body-color)  
+    color: var(--body-color)
   }
 
   .months {

@@ -3,7 +3,7 @@
   <!-- cf: https://tobiasahlin.com/blog/flexbox-break-to-new-row/ -->
   <Year
     v-for="({ offset, months }, offsetFromStartYear) in years"
-    :key="startYear + offsetFromStartYear"   
+    :key="startYear + offsetFromStartYear"
     :year="startYear + offsetFromStartYear"
     :startMonth="offset"
     :months="months"
