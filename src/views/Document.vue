@@ -1,11 +1,18 @@
 <template>
   <div class="container">
-    <div class="calendar-name">
+    <div style="text-align:right" class="calendar-name">
+      <button @click="showSideBar()">
+        사이드바 토글
+      </button>
       {{ name }}
     </div>
-    <Calendar
-      :indexedDays="indexedDays"
-    />
+    <div class="hstack">
+      <Calendar
+        class="calendar"
+        :indexedDays="indexedDays"
+      />
+      <SideBar v-if="sideBarVisibility" class="sidebar"/>
+    </div>
   </div>
 </template>
 
@@ -14,15 +21,22 @@ import Vue from 'vue'
 import { mapState, mapGetters, mapActions } from 'vuex'
 
 import Calendar from '@/components/Calendar.vue'
+import SideBar from '@/components/SideBar.vue'
 
 export default Vue.extend({
-  components: { Calendar },
+  components: { Calendar, SideBar },
+  data () {
+    return { sideBarVisibility: false }
+  },
   computed: {
     ...mapState(['name']),
     ...mapGetters(['indexedDays'])
   },
   methods: {
-    ...mapActions(['load'])
+    ...mapActions(['load']),
+    showSideBar () {
+      this.sideBarVisibility = !this.sideBarVisibility
+    }
   },
   created () {
     this.load()
@@ -39,6 +53,16 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
+.hstack {
+  display: flex;
+  justify-content: space-between;
+  .calendar {
+    flex-grow: 1;
+  }
+  .sidebar {
+    flex-shrink: 0;
+  }
+}
 </style>
 
 <style lang="scss">
