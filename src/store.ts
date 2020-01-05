@@ -31,6 +31,8 @@ function indexedDays (startDate: string, endDate: string, days: (Day | undefined
     startDay = start.getUTCDate() - 1, // - 1 to make it an offset
     endDay = end.getUTCDate() - 1 // - 1 to make it an offset
 
+  if (!yearDiff) { return { offset: 0, years: [] } }
+
   return {
     offset: startYear,
     years: range(yearDiff + 1)
