@@ -1,24 +1,25 @@
 <template>
   <div class="container">
+    <div class="calendar-name">
+      {{ name }}
+    </div>
     <Calendar
-      v-if="startDate"
-      :start-date="startDate"
-      :end-date="endDate"
-      :month-diaries="monthDiaries"
+      :indexedDays="indexedDays"
     />
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
-import { mapGetters, mapActions } from 'vuex'
+import { mapState, mapGetters, mapActions } from 'vuex'
 
 import Calendar from '@/components/Calendar.vue'
 
 export default Vue.extend({
   components: { Calendar },
   computed: {
-    ...mapGetters(['startDate', 'endDate', 'monthDiaries'])
+    ...mapState(['name']),
+    ...mapGetters(['indexedDays'])
   },
   methods: {
     ...mapActions(['load'])

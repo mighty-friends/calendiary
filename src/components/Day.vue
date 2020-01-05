@@ -1,47 +1,30 @@
 <template>
 <div
   class="day"
-  :class="{
-    'of-1st-week': weekOfTheMonth === 0,
-    'of-2nd-week': weekOfTheMonth === 1,
-    'of-3rd-week': weekOfTheMonth === 2,
-    'of-4th-week': weekOfTheMonth === 3,
-    'of-5th-week': weekOfTheMonth === 4,
-    'of-6th-week': weekOfTheMonth === 5,
-    'of-1st-day': dayOfTheWeek === 0,
-    'of-2nd-day': dayOfTheWeek === 1,
-    'of-3rd-day': dayOfTheWeek === 2,
-    'of-4th-day': dayOfTheWeek === 3,
-    'of-5th-day': dayOfTheWeek === 4,
-    'of-6th-day': dayOfTheWeek === 5,
-    'of-7th-day': dayOfTheWeek === 6,
-  }"
   @mouseenter="hover = true"
   @mouseleave="hover = false"
 >
 <!-- @TODO: today highlight 해주자ㅎㅎ -->
-  <div v-if="diary && diary.text !== ''" class="diary"></div>
+  <div v-if="dayData && dayData.text !== ''" class="diary"></div>
   <DayPopover
-    v-if="diary && diary.text !== '' && hover"
-    class="diary-content"
-    :diary="diary">
+    v-if="dayData && dayData.text !== '' && hover"
+    class="diary-content">
   </DayPopover>
 </div>
 </template>
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
-import { DayDiary } from '@/store'
-
 import DayPopover from '@/components/DayPopover.vue'
+import { Day } from '@/store'
 
 export default Vue.extend({
   components: { DayPopover },
   props: {
-    dayOfTheWeek: Number,
-    weekOfTheMonth: Number,
-    margin: Number,
-    diary: Object as PropType<DayDiary | undefined>
+    year: Number,
+    month: Number,
+    day: Number,
+    dayData: Object as PropType<Day | undefined>
   },
   data () {
     return {
@@ -50,8 +33,8 @@ export default Vue.extend({
   },
   computed: {
     status () {
-      const diary = this.diary
-      return diary ? diary.dayType.name : undefined
+      const day = this.dayData
+      return day ? day.dayTypeId : undefined
     }
   }
 })
@@ -71,20 +54,6 @@ export default Vue.extend({
   cursor: pointer;
 
   position: absolute;
-
-  &.of-1st-week { top: 0; }
-  &.of-2nd-week { top: 33px; }
-  &.of-3rd-week { top: 66px; }
-  &.of-4th-week { top: 99px; }
-  &.of-5th-week { top: 132px; }
-  &.of-6th-week { top: 165px; }
-  &.of-1st-day { left: 0; }
-  &.of-2nd-day { left: 33px; }
-  &.of-3rd-day { left: 66px; }
-  &.of-4th-day { left: 99px; }
-  &.of-5th-day { left: 132px; }
-  &.of-6th-day { left: 165px; }
-  &.of-7th-day { left: 198px; }
 
   display: flex;
   align-items: center;

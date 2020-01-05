@@ -1,7 +1,7 @@
-import { BrowserWindow, nativeTheme } from 'electron'
+import { BrowserWindow, nativeTheme, dialog } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 
-import { currentOpenDocuments, removeDocumentOf, updateAppState } from './app-state'
+import { onLaunchDialogClose, onDocumentClose } from './app-state'
 
 function loadWith({ path, on: win }: { path: string, on: BrowserWindow }) {
   if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -26,20 +26,15 @@ export function createDocumentWindow(filePath: string): BrowserWindow {
     backgroundColor: nativeTheme.shouldUseDarkColors ? '#3e3b3e' : '#ffffff'
   })
 
-  // @TODO: 곧 삭제
-  window.setRepresentedFilename(filePath)
-
   loadWith({ path: 'document', on: window })
 
-  window.on('closed', () => {
-    removeDocumentOf({ window })
-  })
+  window.on('closed', () => { onDocumentClose({ window }) })
 
   return window
 }
 
 // @TODO: Light <-> Dark 전환할 때마다 maximize 가능해짐..
-export function createLaunchDialogWindow() {
+export function createLaunchDialogWindow(): BrowserWindow {
   const launchDialog = new BrowserWindow({
     width: 650,
     height: 400,
@@ -58,24 +53,27 @@ export function createLaunchDialogWindow() {
 
   loadWith({ path: 'launch-dialog', on: launchDialog })
 
-  launchDialog.on('ready-to-show', () => {
-    launchDialog?.show()
+  launchDialog.on('ready-to-show', () => { launchDialog.show() })
+  launchDialog.on('closed', () => { onLaunchDialogClose() })
+
+  return launchDialog
+}
+
+export async function createSaveDialog (): Promise<{ canceled: false, path: string} | { canceled: true }> {
+  const { canceled, filePath: path } = await dialog.showSaveDialog({
+    filters: [{ name: 'calendiary', extensions: [ 'calendiary' ] }]
   })
 
-  updateAppState({
-    kind: "launch-dialog",
-    documents: currentOpenDocuments(),
-    launchDialog
+  if (!canceled) return { canceled, path: path! }
+  else return { canceled }
+}
+
+export async function createOpenDialog (): Promise<{ canceled: false, path: string } | { canceled: true }> {
+  const { canceled, filePaths: [path] } = await dialog.showOpenDialog({
+    filters: [{ name: 'calendiary', extensions: [ 'calendiary' ] }],
+    properties: ['openFile', 'createDirectory']
   })
 
-  launchDialog.on('closed', () => {
-    if (currentOpenDocuments().length === 0) {
-      updateAppState({ kind: "empty" })
-    } else {
-      updateAppState({
-        kind: "documents",
-        documents: currentOpenDocuments()
-      })
-    }
-  })
+  if (!canceled) return { canceled, path }
+  else return { canceled }
 }

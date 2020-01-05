@@ -1,26 +1,23 @@
 <template>
-<div
-  class="column is-half-mobile is-one-third-tablet is-one-quarter-widescreen">
-  <div class="month-container">
-    <div class="label">
-      {{ month }}월
-    </div>
-    <div
-      class="month"
+<div class="month-container">
+  <div class="label">
+    {{ month + 1 }}월
+  </div>
+  <div
+    class="month"
+    :class="{ [`of-${weeksCount()}-weeks`]: true }">
+    <Day
+      v-for="(day, offsetFromStartDay) in days"
+      :key="startDay + offsetFromStartDay"
       :class="{
-        'of-4-weeks': weeksOfTheMonth() === 4,
-        'of-5-weeks': weeksOfTheMonth() === 5,
-        'of-6-weeks': weeksOfTheMonth() === 6
-      }">
-      <Day
-        v-for="n in daysCount"
-        :key="n"
-        :day-of-the-week="dayOfTheWeek(n)"
-        :week-of-the-month="weekOfTheMonth(n)"
-        :margin="1"
-        :diary="diary[n]"
-      />
-    </div>
+        [`of-day-${dayOfTheWeek(offsetFromStartDay) + 1}`]: true,
+        [`of-week-${weekOfTheMonth(offsetFromStartDay) + 1}`]: true
+      }"
+      :year="year"
+      :month="month"
+      :day="startDay + offsetFromStartDay"
+      :dayData="day"
+    />
   </div>
 </div>
 </template>
@@ -28,35 +25,31 @@
 <script lang="ts">
 import Vue, { PropType } from 'vue'
 import Day from '@/components/Day.vue'
-import { DayDiary } from '@/store'
+import { Month, Day as DayT, pad } from '@/store'
 
 export default Vue.extend({
   components: { Day },
   props: {
     year: Number,
     month: Number,
-    startingDayOfTheWeek: Number,
-    diary: Array as PropType<DayDiary[]>
-  },
-  computed: {
-    daysCount () {
-      return this.diary.length
-    }
+    startDay: Number,
+    days: Array as PropType<(DayT | undefined)[]>
   },
   methods: {
-    // @TODO: 날짜 관련된거 유틸리티 폴더 하나 만들어서 몰아넣어도 좋을듯?
-    offsetFromDate0 (day: number): number {
-      return (this.startingDayOfTheWeek + day - 1)
+    offsetFromFirstSunday (offset: number): number {
+      const startDay = `${this.year}-${pad(this.month + 1)}-${pad(this.startDay + 1)}`
+      const dayOfTheWeekOfStartDay = new Date(startDay).getDay()
+
+      return dayOfTheWeekOfStartDay + offset
     },
-    dayOfTheWeek (day: number): number {
-      return this.offsetFromDate0(day) % 7
+    dayOfTheWeek (offset: number): number {
+      return this.offsetFromFirstSunday(offset) % 7
     },
-    weekOfTheMonth (day: number): number {
-      return Math.floor(this.offsetFromDate0(day) / 7)
+    weekOfTheMonth (offset: number): number {
+      return Math.floor(this.offsetFromFirstSunday(offset) / 7)
     },
-    // 위의 세 메서드는 offset이지만 이 메서드는 갯수이기 때문에 +1 이 필요하다.
-    weeksOfTheMonth (): number {
-      return this.weekOfTheMonth(this.daysCount) + 1
+    weeksCount (): number {
+      return Math.ceil(this.offsetFromFirstSunday(this.days.length) / 7)
     }
   }
 })
@@ -64,7 +57,7 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
 .month-container {
-  margin: 0 auto 3rem;
+  margin: 24px;
   width: 226px;
 
   .label {
@@ -83,17 +76,29 @@ export default Vue.extend({
     $day-size: 28px;
     $day-margin: 5px;
 
-    &.of-4-weeks {
-      height: $day-size * 4 + $day-margin * 3;
-    }
+    // @TODO: https://sass-lang.com/documentation/interpolation
+    &.of-1-weeks { height: $day-size * 1 }
+    &.of-2-weeks { height: $day-size * 2 + $day-margin * 1; }
+    &.of-3-weeks { height: $day-size * 3 + $day-margin * 2; }
+    &.of-4-weeks { height: $day-size * 4 + $day-margin * 3; }
+    &.of-5-weeks { height: $day-size * 5 + $day-margin * 4; }
+    &.of-6-weeks { height: $day-size * 6 + $day-margin * 5; }
+  }
 
-    &.of-5-weeks {
-      height: $day-size * 5 + $day-margin * 4;
-    }
-
-    &.of-6-weeks {
-      height: $day-size * 6 + $day-margin * 5;
-    }
+  .day {
+    &.of-week-1 { top: 0; }
+    &.of-week-2 { top: 33px; }
+    &.of-week-3 { top: 66px; }
+    &.of-week-4 { top: 99px; }
+    &.of-week-5 { top: 132px; }
+    &.of-week-6 { top: 165px; }
+    &.of-day-1 { left: 0; }
+    &.of-day-2 { left: 33px; }
+    &.of-day-3 { left: 66px; }
+    &.of-day-4 { left: 99px; }
+    &.of-day-5 { left: 132px; }
+    &.of-day-6 { left: 165px; }
+    &.of-day-7 { left: 198px; }
   }
 }
 </style>

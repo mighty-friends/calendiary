@@ -1,59 +1,81 @@
-/// 책임: sqlite의 데이터를 type-rich하게 여기서 변환하자
-/// 이 레벨에선 아직 primitive한 데이터까지만
-
 import sqlite, { Database } from 'sqlite'
+
+import { Model, CalendiaryConnection, Calendiary, Day } from '@/background'
 
 declare const __static: string
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
-export async function init(path: string): Promise<Database> {
-  const db = await sqlite.open(path)
-
-  return db.migrate({
-    force: isDevelopment ? 'last' : undefined,
-    migrationsPath: __static + '/migrations/'
-  })
+function range (n: number): number[] {
+  return [...Array(n).keys()]
 }
 
-export async function open(path: string): Promise<Database> {
-  return sqlite.open(path)
+function createConnection (database: Database): CalendiaryConnection {
+  return {
+    async getCalendiary (): Promise<Calendiary> {
+      const [
+        startDate, endDate, dayTypes, name, rawDays
+      ]: [
+        number,
+        number,
+        { id: number, name: string, color: string }[],
+        string,
+        { id: number, date: number, dayType: number, text: string }[]
+      ] = await Promise.all([
+        database.get('SELECT value FROM Settings WHERE key = "startDate"')
+          .then(date => Number(date.value)),
+        database.get('SELECT value FROM Settings WHERE key = "endDate"')
+          .then(date => Number(date.value)),
+        database.all('SELECT * FROM DayType'),
+        database.get('SELECT value FROM Settings WHERE key = "nameOfCalendar"')
+          .then(name => name.value),
+        database.all('SELECT * FROM Day')
+      ])
+
+      const days: (Day | undefined)[] = range(endDate - startDate + 1)
+        .map(_ => undefined)
+
+      rawDays.forEach(({ id, date, dayType: dayTypeId, text}) => {
+        days[date - startDate] = { id, dayTypeId, text }
+      })
+
+      return {
+        name, startDate, endDate, dayTypes, days
+      }
+    },
+    async closeCalendiary (): Promise<void> {
+      database.close()
+    },
+    async updateName (): Promise<void> { /* IMPL HERE */ },
+    async updateStartDate (): Promise<void> { /* IMPL HERE */ },
+    async updateEndDate (): Promise<void> { /* IMPL HERE */ },
+    async addDayType (): Promise<{ id: number }> { /* IMPL HERE */ return { id: 1 } },
+    async updateDayType (): Promise<void> { /* IMPL HERE */ },
+    async deleteDayType (): Promise<{ ok: boolean }> { /* IMPL HERE */ return { ok: true } },
+    async updateDay (): Promise<void> { /* IMPL HERE */ }
+  }
 }
 
-export interface Duration { startDate: number, endDate: number }
+export const model: Model = {
+  calendiaries: [],
 
-export async function getDuration(db: Database): Promise<Duration> {
-  const dates = await Promise.all([
-    db.get('SELECT value FROM Settings WHERE key = $key', { $key: 'startDate' }),
-    db.get('SELECT value FROM Settings WHERE key = $key', { $key: 'endDate' })
-  ])
+  async initCalendiary (path: string): Promise<CalendiaryConnection> {
+    const database = await sqlite.open(path)
 
-  const [startDate, endDate] = dates
-    .map(date => date.value)
-    .map(Number)
+    database.migrate({
+      force: isDevelopment ? 'last' : undefined,
+      migrationsPath: __static + '/migrations/'
+    })
 
-  return { startDate, endDate }
-}
+    return createConnection(database)
+  },
 
+  async loadCalendiary (path: string): Promise<CalendiaryConnection> {
+    const database = await sqlite.open(path)
+    return createConnection(database)
+  },
 
-export interface DayType {
-  id: number,
-  name: string,
-  color: string
-}
-
-export function getDayTypes(db: Database): Promise<DayType[]> {
-  return db.all('SELECT * FROM DayType')
-}
-
-
-export interface Diary {
-  id: number,
-  date: number,
-  dayType: number,
-  text: string
-}
-
-export function getDiaries(db: Database): Promise<Diary[]> {
-  return db.all('SELECT * FROM Diary')
+  async closeCalendiary (connection: CalendiaryConnection): Promise<void> {
+    return connection.closeCalendiary()
+  }
 }
