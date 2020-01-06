@@ -1,15 +1,20 @@
 <template>
 <div
   class="day"
-  :class="{today: isToday}"
+  :class="{
+    'today': isToday,
+    'is-selected': isSelected
+  }"
   @mouseenter="hover = true"
-  @mouseleave="hover = false">
+  @mouseleave="hover = false"
+  @click="onSelected()">
   <div v-if="dayData && dayData.text !== ''" class="content-indicator"></div>
 </div>
 </template>
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
+import { mapState, mapMutations } from 'vuex'
 import { Day, pad } from '@/store'
 
 export default Vue.extend({
@@ -25,15 +30,36 @@ export default Vue.extend({
     }
   },
   computed: {
+    ...mapState(['selectedDay']),
     status () {
       const day = this.dayData
       return day ? day.dayTypeId : undefined
     },
     isToday (): boolean {
       const today = new Date()
-      return today.getUTCFullYear() === this.year
-        && today.getUTCMonth() === this.month
-        && today.getUTCDate() === this.day
+      return today.getUTCFullYear() === this.year &&
+        today.getUTCMonth() === this.month &&
+        today.getUTCDate() === this.day + 1
+    },
+    isSelected (): boolean {
+      return this.selectedDay &&
+        this.selectedDay.year === this.year &&
+        this.selectedDay.month === this.month &&
+        this.selectedDay.day === this.day
+    }
+  },
+  methods: {
+    ...mapMutations(['selectDay', 'clearSelectedDay']),
+    onSelected () {
+      if (this.isSelected) {
+        (this as any).clearSelectedDay()
+      } else {
+        (this as any).selectDay({
+          year: this.year,
+          month: this.month,
+          day: this.day
+        })
+      }
     }
   }
 })
@@ -50,6 +76,7 @@ export default Vue.extend({
 
   $border-radius: 6px;
   border-radius: $border-radius;
+
   cursor: pointer;
 
   position: absolute;
@@ -62,10 +89,13 @@ export default Vue.extend({
     background-color: var(--body-tertiary-background);
   }
 
+  &.is-selected {
+    border: 2px solid var(--body-border);
+  }
+
   &:hover {
     // @TODO: 라이트/다크 좀 더 근본있는 컬러로 교체 필요
-    $border: 1px;
-    border: $border solid var(--body-border);
+    border: 1px solid var(--body-border);
     background-color: var(--body-tertiary-background);
     transition: border 0.2s, background-color 0.2s;
   }

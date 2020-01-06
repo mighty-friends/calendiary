@@ -1,9 +1,6 @@
 <template>
   <div class="container">
-    <div style="text-align:right" class="calendar-name">
-      <button @click="showSideBar()">
-        사이드바 토글
-      </button>
+    <div class="calendar-name">
       {{ name }}
     </div>
     <div class="hstack" :class="{'is-side-bar-visible': sideBarVisibility}">
@@ -25,18 +22,15 @@ import SideBar from '@/components/SideBar.vue'
 
 export default Vue.extend({
   components: { Calendar, SideBar },
-  data () {
-    return { sideBarVisibility: false }
-  },
   computed: {
-    ...mapState(['name']),
-    ...mapGetters(['indexedDays'])
+    ...mapState(['name', 'selectedDay']),
+    ...mapGetters(['indexedDays']),
+    sideBarVisibility () {
+      return this.selectedDay
+    }
   },
   methods: {
-    ...mapActions(['load']),
-    showSideBar () {
-      this.sideBarVisibility = !this.sideBarVisibility
-    }
+    ...mapActions(['load'])
   },
   created () {
     this.load()
@@ -60,14 +54,16 @@ $sidebar-width: 260px;
   .calendar {
     margin: 0;
     transition: margin-right 0.15s;
+    height: 100vh;
+    overflow-y: scroll;
   }
   &.is-side-bar-visible .calendar {
     margin-right: $sidebar-width;
   }
   .sidebar {
     width: $sidebar-width;
-    border-left: 1px solid #242424;
-    position: absolute;
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
+    position: fixed;
     top: 0;
     bottom: 0;
     right: -$sidebar-width;

@@ -20,8 +20,7 @@ export function createDocumentWindow(filePath: string): BrowserWindow {
     minWidth: 520,
     webPreferences: {
       nodeIntegration: true,
-      devTools: true, // isDevelopment,
-      scrollBounce: true
+      devTools: true // isDevelopment,
     },
     backgroundColor: nativeTheme.shouldUseDarkColors ? '#3e3b3e' : '#ffffff'
   })

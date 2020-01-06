@@ -119,7 +119,8 @@ interface State {
   unixStartDate: number | undefined,
   unixEndDate: number | undefined,
   dayTypes: DayType[],
-  days: (Day | undefined)[]
+  days: (Day | undefined)[],
+  selectedDay: { year: number, month: number, day: number } | undefined
 }
 
 export default new Vuex.Store({
@@ -128,7 +129,8 @@ export default new Vuex.Store({
     unixStartDate: undefined,
     unixEndDate: undefined,
     dayTypes: [],
-    days: []
+    days: [],
+    selectedDay: undefined
   } as State,
   getters: {
     startDate ({ unixStartDate }) {
@@ -140,9 +142,20 @@ export default new Vuex.Store({
     /// Year & Month-indexed days
     indexedDays ({ days, dayTypes }, { startDate, endDate }) {
       return indexedDays(startDate, endDate, days, dayTypes)
+    },
+    getDayBy: ({ unixStartDate, days }) =>
+      ({ year, month, day }: { year: number, month: number, day: number }): (Day | undefined) => {
+      const unixDate = isoDateToUnixDate(`${year}-${pad(month + 1)}-${pad(day + 1)}`)
+      return unixStartDate ? days[unixDate - unixStartDate] : undefined
     }
   },
   mutations: {
+    selectDay (state, { year, month, day }) {
+      state.selectedDay = { year, month, day }
+    },
+    clearSelectedDay (state) {
+      state.selectedDay = undefined
+    },
     setName (state, name) {
       state.name = name
     },

@@ -1,6 +1,6 @@
 <template>
 <div class="calendar">
-  <!-- cf: https://tobiasahlin.com/blog/flexbox-break-to-new-row/ -->
+  <!-- 빈 월/날짜도 표시할 필요가 있어 보임 -->
   <Year
     v-for="({ offset, months }, offsetFromStartYear) in years"
     :key="startYear + offsetFromStartYear"

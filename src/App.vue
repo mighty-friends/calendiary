@@ -31,5 +31,6 @@ export default Vue.extend({
 
 body {
   font: caption;
+  -webkit-user-select: none;
 }
 </style>
