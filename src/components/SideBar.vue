@@ -12,7 +12,4 @@ export default Vue.extend({
 </script>
 
 <style lang="scss">
-.sidebar {
-  width: 200px;
-}
 </style>

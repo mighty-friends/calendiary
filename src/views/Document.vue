@@ -6,12 +6,12 @@
       </button>
       {{ name }}
     </div>
-    <div class="hstack">
+    <div class="hstack" :class="{'is-side-bar-visible': sideBarVisibility}">
       <Calendar
         class="calendar"
         :indexedDays="indexedDays"
       />
-      <SideBar v-if="sideBarVisibility" class="sidebar"/>
+      <SideBar class="sidebar"/>
     </div>
   </div>
 </template>
@@ -53,14 +53,28 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
+$sidebar-width: 260px;
 .hstack {
-  display: flex;
-  justify-content: space-between;
+  position: relative;
+
   .calendar {
-    flex-grow: 1;
+    margin: 0;
+    transition: margin-right 0.15s;
+  }
+  &.is-side-bar-visible .calendar {
+    margin-right: $sidebar-width;
   }
   .sidebar {
-    flex-shrink: 0;
+    width: $sidebar-width;
+    border-left: 1px solid #242424;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: -$sidebar-width;
+    transition: right 0.15s;
+  }
+  &.is-side-bar-visible .sidebar {
+    right: 0;
   }
 }
 </style>
