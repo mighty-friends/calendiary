@@ -6,7 +6,7 @@
   <div
     class="month"
     :class="{ [`of-${weeksCount()}-weeks`]: true }">
-    <Day
+    <DayContainer
       v-for="(day, offsetFromStartDay) in days"
       :key="startDay + offsetFromStartDay"
       :class="{
@@ -24,11 +24,11 @@
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
-import Day from '@/components/Day.vue'
+import DayContainer from '@/components/DayContainer.vue'
 import { Month, Day as DayT, pad } from '@/store'
 
 export default Vue.extend({
-  components: { Day },
+  components: { DayContainer },
   props: {
     year: Number,
     month: Number,

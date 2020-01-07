@@ -147,7 +147,11 @@ export default new Vuex.Store({
       ({ year, month, day }: { year: number, month: number, day: number }): (Day | undefined) => {
       const unixDate = isoDateToUnixDate(`${year}-${pad(month + 1)}-${pad(day + 1)}`)
       return unixStartDate ? days[unixDate - unixStartDate] : undefined
-    }
+    },
+    getDayTypeById: ({ dayTypes }) =>
+      (id: number): DayType => {
+        return dayTypes.find(dayType => dayType.id === id)!
+      }
   },
   mutations: {
     selectDay (state, { year, month, day }) {

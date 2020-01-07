@@ -2,7 +2,6 @@
 <div class="sidebar">
   <div class="date">{{ formattedDate }}</div>
   <div class="day-type-select">
-    <!-- @TODO: dumb UI Day랑 smart Day를 구분해서 여긴 dumb Day 갖다써야할듯? -->
     <!-- @TODO: SideBar도 장기적으로 새 창에 띄울 수 있으려면 dumb UI Sidebar 따로 빼야 -->
     <!-- @TODO: Day 스타일링 다양한 색에 대응할 수 있도록 수정 -->
     <Day

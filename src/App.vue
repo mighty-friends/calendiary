@@ -25,7 +25,7 @@ export default Vue.extend({
     --body-background: #3e3b3e;
     --body-secondary-background: #2e2b2e;
     --body-tertiary-background: #202020;
-    --body-border: #111111;
+    --body-border: #868686;
   }
 }
 
