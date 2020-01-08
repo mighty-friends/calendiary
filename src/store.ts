@@ -104,7 +104,7 @@ function unixDateToIsoDate (unixDate: number): string {
   return date.toISOString().slice(0, 10)
 }
 
-function isoDateToUnixDate (isoDate: string): number {
+export function isoDateToUnixDate (isoDate: string): number {
   const date = new Date(isoDate)
   return date.getTime() / 1000 / 86400
 }
@@ -174,6 +174,21 @@ export default new Vuex.Store({
     },
     setDays (state, days) {
       state.days = days
+    },
+    updateDayTypeOfDay (state, { offsetFromStartDate, dayTypeId }) {
+      state.days = state.days.map((day: Day | undefined, i: number) => {
+        if (i === offsetFromStartDate) {
+          // 이 메소드는 "이미 존재하는 Day를 업데이트"하기 위함.
+          // 따라서 day가 undefined면 문제가 있다.
+          // @TODO: 난 null쓴 적이 없는데 null이 저장돼있음.. 고쳐지면 === 로 바꾸자
+          if (day == undefined) {
+            console.error('Update dayType of un-initialized day.')
+            return undefined
+          }
+          return { ...day, dayTypeId }
+        }
+        else { return day }
+      })
     }
   },
   actions: {
@@ -185,6 +200,24 @@ export default new Vuex.Store({
       commit('setUnixEndDate', endDate)
       commit('setDayTypes', dayTypes)
       commit('setDays', days)
+    },
+    async setDayType ({ commit }, { offsetFromStartDate, dayTypeId }) {
+      // @TODO: 아래 주석 다!
+      if (/* 이미 있으면 */ true) {
+        // update SQL file 
+        // 성공시
+        commit('updateDayTypeOfDay', { offsetFromStartDate, dayTypeId })
+        // 실패시
+        // console.error('file 쓰기 실패')
+      } else { // 이 offset의 값이 undefined라면
+        // sql에 이 dayTypeId랑 '' text로 CREATE INTO day를 invoke
+        // 성공시
+        // commit('createDay', Day)
+        // 실패시
+        // console.error('Fail to create new Day')
+      }
+      // ?? 이 함수의 결과값의 범위를 잘 고민해봐야할듯..
+      // 현재 추측: return Ok( SOME(원래값) | NONE ) | Err
     }
   }
 })
