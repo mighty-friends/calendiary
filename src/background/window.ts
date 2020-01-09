@@ -1,7 +1,7 @@
 import { BrowserWindow, nativeTheme, dialog } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 
-import { onLaunchDialogClose, onDocumentClose } from './app-state'
+import { onLaunchDialogClose, onDocumentClose, onNewDocumentClose } from './app-state'
 
 function loadWith({ path, on: win }: { path: string, on: BrowserWindow }) {
   if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -32,22 +32,26 @@ export function createDocumentWindow(filePath: string): BrowserWindow {
   return window
 }
 
+const dialogsDefaultOptions = {
+  center: true,
+  resizable: false,
+  maximizable: false,
+  webPreferences: {
+    nodeIntegration: true,
+    devTools: true // isDevelopment
+  },
+  frame: false
+}
+
 // @TODO: Light <-> Dark 전환할 때마다 maximize 가능해짐..
 export function createLaunchDialogWindow(): BrowserWindow {
   const launchDialog = new BrowserWindow({
     width: 650,
     height: 400,
-    center: true,
-    resizable: false,
-    maximizable: false,
-    webPreferences: {
-      nodeIntegration: true,
-      devTools: true // isDevelopment
-    },
     vibrancy: 'sidebar',
-    frame: false,
     titleBarStyle: 'hidden',
-    show: false
+    show: false,
+    ...dialogsDefaultOptions
   })
 
   loadWith({ path: 'launch-dialog', on: launchDialog })
@@ -56,6 +60,23 @@ export function createLaunchDialogWindow(): BrowserWindow {
   launchDialog.on('closed', () => { onLaunchDialogClose() })
 
   return launchDialog
+}
+
+export function createNewDocumentWindow(): BrowserWindow {
+  const newDocument = new BrowserWindow({
+    width: 360,
+    height: 500,
+    titleBarStyle: 'hiddenInset',
+    show: false,
+    ...dialogsDefaultOptions
+  })
+
+  loadWith({ path: 'new-document', on: newDocument })
+
+  newDocument.on('ready-to-show', () => { newDocument.show() })
+  newDocument.on('closed', () => { onNewDocumentClose() })
+
+  return newDocument
 }
 
 export async function createSaveDialog (): Promise<{ canceled: false, path: string} | { canceled: true }> {

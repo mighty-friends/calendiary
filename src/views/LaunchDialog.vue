@@ -14,8 +14,8 @@
       </div>
       <div class="right">
         <ul class="buttons">
-          <li @click="newFile" class="button">새 캘린터</li>
-          <li @click="openFile" class="button">열기...</li>
+          <li @click="newDocument" class="button">새 캘린터</li>
+          <li @click="openDocument" class="button">열기...</li>
           <!-- <li class="button">«파일 이름» 다시 열기</li> -->
         </ul>
       </div>
@@ -34,11 +34,11 @@ export default Vue.extend({
     }
   },
   methods: {
-    newFile () {
-      ipcRenderer.invoke('new-file')
+    newDocument () {
+      ipcRenderer.invoke('new-document')
     },
-    openFile () {
-      ipcRenderer.invoke('open-file')
+    openDocument () {
+      ipcRenderer.invoke('open-document')
     }
   }
 })
@@ -48,9 +48,8 @@ export default Vue.extend({
 .draggable {
   -webkit-app-region: drag;
   -webkit-user-select: none;
-}
 
-.hstack {
+  .hstack {
   display: flex;
   color: var(--body-color);
 
@@ -96,5 +95,6 @@ export default Vue.extend({
       }
     }
   }
+}
 }
 </style>

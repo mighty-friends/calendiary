@@ -145,9 +145,9 @@ export default new Vuex.Store({
     },
     getDayBy: ({ unixStartDate, days }) =>
       ({ year, month, day }: { year: number, month: number, day: number }): (Day | undefined) => {
-      const unixDate = isoDateToUnixDate(`${year}-${pad(month + 1)}-${pad(day + 1)}`)
-      return unixStartDate ? days[unixDate - unixStartDate] : undefined
-    },
+        const unixDate = isoDateToUnixDate(`${year}-${pad(month + 1)}-${pad(day + 1)}`)
+        return unixStartDate ? days[unixDate - unixStartDate] : undefined
+      },
     getDayTypeById: ({ dayTypes }) =>
       (id: number): DayType => {
         return dayTypes.find(dayType => dayType.id === id)!
@@ -181,19 +181,18 @@ export default new Vuex.Store({
           // 이 메소드는 "이미 존재하는 Day를 업데이트"하기 위함.
           // 따라서 day가 undefined면 문제가 있다.
           // @TODO: 난 null쓴 적이 없는데 null이 저장돼있음.. 고쳐지면 === 로 바꾸자
-          if (day == undefined) {
+          if (day === undefined || day === null) {
             console.error('Update dayType of un-initialized day.')
             return undefined
           }
           return { ...day, dayTypeId }
-        }
-        else { return day }
+        } else { return day }
       })
     }
   },
   actions: {
     async load ({ commit }) {
-      const { name, startDate, endDate, dayTypes, days }: Calendiary = await ipcRenderer.invoke('load-file')
+      const { name, startDate, endDate, dayTypes, days }: Calendiary = await ipcRenderer.invoke('load-document')
 
       commit('setName', name)
       commit('setUnixStartDate', startDate)
@@ -203,8 +202,8 @@ export default new Vuex.Store({
     },
     async setDayType ({ commit }, { offsetFromStartDate, dayTypeId }) {
       // @TODO: 아래 주석 다!
-      if (/* 이미 있으면 */ true) {
-        // update SQL file 
+      if (/* 이미 있으면 */isNaN(NaN)) {
+        // update SQL file
         // 성공시
         commit('updateDayTypeOfDay', { offsetFromStartDate, dayTypeId })
         // 실패시

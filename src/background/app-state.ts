@@ -4,7 +4,7 @@ import { BrowserWindow, ipcMain, protocol, app } from 'electron'
 import { installVueDevtools } from 'vue-cli-plugin-electron-builder/lib'
 
 import { CalendiaryConnection as Connection } from '@/background'
-import { createLaunchDialogWindow, createDocumentWindow, createOpenDialog, createSaveDialog } from './window'
+import { createLaunchDialogWindow, createDocumentWindow, createOpenDialog, createNewDocumentWindow } from './window'
 import { model } from './model'
 
 /// 열린 창과 관련된 모든 런타임 데이터.
@@ -80,26 +80,26 @@ async function removeDocumentOf({ window }: { window: BrowserWindow }) {
   }
 }
 
-function openNewDocumentWith({ path }: { path: string }) {
-  const newDocument = {
+function openDocumentWith({ path }: { path: string }) {
+  const document = {
     window: createDocumentWindow(path),
     database: model.loadCalendiary(path)
   }
 
   switch (appState.kind) {
     case "empty":
-      appState = { kind: "documents", documents: [newDocument] }
+      appState = { kind: "documents", documents: [document] }
       break
     case "launch-dialog":
       appState.launchDialog.close()
-      appState = { kind: "documents", documents: [...appState.documents, newDocument] }
+      appState = { kind: "documents", documents: [...appState.documents, document] }
       break
     case "new-document":
       appState.newDocument.close()
-      appState = { kind: "documents", documents: [...appState.documents, newDocument] }
+      appState = { kind: "documents", documents: [...appState.documents, document] }
       break
     case "documents":
-      appState.documents = [...appState.documents, newDocument]
+      appState.documents = [...appState.documents, document]
       break
   }
 }
@@ -109,40 +109,66 @@ export async function onDocumentClose({ window }: { window: BrowserWindow }) {
 }
 
 export async function onLaunchDialogClose() {
-  if (currentOpenDocuments().length === 0) {
-    appState = { kind: "empty" }
-  } else {
-    appState = {
-      kind: "documents",
-      documents: currentOpenDocuments()
+  // 사용자가 창을 닫은거라면 appState를 변경하고,
+  // 코드에 의해 닫힌거라면 창을 닫은 코드가 appState를 변경시키도록 내버려둔다.
+  if (appState.kind === "launch-dialog") {
+    if (currentOpenDocuments().length === 0) {
+      appState = { kind: "empty" }
+    } else {
+      appState = {
+        kind: "documents",
+        documents: currentOpenDocuments()
+      }
     }
-  } 
+  }
+}
+
+export async function onNewDocumentClose() {
+  if (appState.kind === "new-document") {
+    if (currentOpenDocuments().length === 0) {
+      appState = { kind: "empty" }
+    } else {
+      appState = {
+        kind: "documents",
+        documents: currentOpenDocuments()
+      }
+    } 
+  }
 }
 
 /// -------------------------- RENDER PROCESS IPC -------------------------- ///
 
-ipcMain.handle('new-file', async _ => {
-  const result = await createSaveDialog()
+ipcMain.handle('new-document', _ => {
+  switch (appState.kind) {
+    case "launch-dialog":
+      appState.launchDialog.close()
+    case "empty":
+    case "documents":
+      break
+    case "new-document":
+      console.error('Try to open new document while it\'s already in the state of new document')
+      return
+  }
 
-  if (!result.canceled) {
-    await model.initCalendiary(result.path)
-
-    openNewDocumentWith({ path: result.path })
+  appState = {
+    kind: 'new-document',
+    newDocument: createNewDocumentWindow(),
+    documents: currentOpenDocuments()
   }
 })
 
-ipcMain.handle('load-file', async ({ sender }) => {
+ipcMain.handle('load-document', async ({ sender }) => {
   const window = BrowserWindow.fromWebContents(sender)
   const database = await findDocumentOf({ window })!.database
 
   return database.getCalendiary()
 })
 
-ipcMain.handle('open-file', async _ => {
+ipcMain.handle('open-document', async _ => {
   const result = await createOpenDialog()
 
   if (!result.canceled) {
-    openNewDocumentWith({ path: result.path })
+    openDocumentWith({ path: result.path })
   }
 })
 
