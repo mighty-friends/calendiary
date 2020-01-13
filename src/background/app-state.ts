@@ -1,10 +1,10 @@
 import assert from 'assert'
 
 import { BrowserWindow, ipcMain, protocol, app } from 'electron'
-import { installVueDevtools } from 'vue-cli-plugin-electron-builder/lib'
+import { installVueDevtools, createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 
 import { CalendiaryConnection as Connection } from '@/background'
-import { createLaunchDialogWindow, createDocumentWindow, createOpenDialog, createNewDocumentWindow } from './window'
+import { createLaunchDialogWindow, createDocumentWindow, createOpenDialog, createNewDocumentWindow, createSaveDialog } from './window'
 import { model } from './model'
 
 /// 열린 창과 관련된 모든 런타임 데이터.
@@ -82,7 +82,7 @@ async function removeDocumentOf({ window }: { window: BrowserWindow }) {
 
 function openDocumentWith({ path }: { path: string }) {
   const document = {
-    window: createDocumentWindow(path),
+    window: createDocumentWindow(),
     database: model.loadCalendiary(path)
   }
 
@@ -154,6 +154,39 @@ ipcMain.handle('new-document', _ => {
     kind: 'new-document',
     newDocument: createNewDocumentWindow(),
     documents: currentOpenDocuments()
+  }
+})
+
+ipcMain.handle('save-document', async (_, config) => {
+  const result = await (() => {
+    switch (appState.kind) {
+      case "new-document":
+        return createSaveDialog(appState.newDocument)
+      default:
+        console.error('Initializing document on state: ', appState.kind)
+        // @TODO: 이게 허용돼야하냐..?
+        return createSaveDialog(undefined)
+  }})()
+
+  if (result.canceled) {
+    return { canceled: true }
+  } else {
+    const window = createDocumentWindow()
+    const database = model.initCalendiary(result.path, config)
+
+    switch(appState.kind) {
+      case "new-document":
+        appState.newDocument.close()
+        break
+      default:
+        console.error('Initializing document on state: ', appState.kind)
+        break
+    }
+
+    appState = {
+      kind: "documents",
+      documents: [...currentOpenDocuments(), { window, database }]
+    }
   }
 })
 

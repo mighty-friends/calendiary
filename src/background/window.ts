@@ -13,7 +13,7 @@ function loadWith({ path, on: win }: { path: string, on: BrowserWindow }) {
   }
 }
 
-export function createDocumentWindow(filePath: string): BrowserWindow {
+export function createDocumentWindow(): BrowserWindow {
   const window = new BrowserWindow({
     width: 1300,
     height: 800,
@@ -65,8 +65,8 @@ export function createLaunchDialogWindow(): BrowserWindow {
 export function createNewDocumentWindow(): BrowserWindow {
   const newDocument = new BrowserWindow({
     width: 360,
-    height: 500,
-    titleBarStyle: 'hiddenInset',
+    height: 400,
+    titleBarStyle: 'hidden',
     show: false,
     ...dialogsDefaultOptions
   })
@@ -79,8 +79,11 @@ export function createNewDocumentWindow(): BrowserWindow {
   return newDocument
 }
 
-export async function createSaveDialog (): Promise<{ canceled: false, path: string} | { canceled: true }> {
-  const { canceled, filePath: path } = await dialog.showSaveDialog({
+// @TODO: undefined 돼야하는지 검토
+export async function createSaveDialog (newDocument: BrowserWindow | undefined): Promise<{ canceled: false, path: string} | { canceled: true }> {
+  BrowserWindow.getFocusedWindow()?.setSheetOffset(22)
+
+  const { canceled, filePath: path } = await dialog.showSaveDialog(newDocument!, {
     filters: [{ name: 'calendiary', extensions: [ 'calendiary' ] }]
   })
 

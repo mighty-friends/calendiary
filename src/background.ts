@@ -35,7 +35,8 @@ export interface CalendiaryConnection {
 
 export interface Model {
   calendiaries: CalendiaryConnection[],
-  initCalendiary: (path: string) => Promise<CalendiaryConnection>,
+  // @TODO: config typing
+  initCalendiary: (path: string, config: any) => Promise<CalendiaryConnection>,
   loadCalendiary: (path: string) => Promise<CalendiaryConnection>,
   closeCalendiary: (connection: CalendiaryConnection) => Promise<void>
 }

@@ -59,9 +59,10 @@ function createConnection (database: Database): CalendiaryConnection {
 export const model: Model = {
   calendiaries: [],
 
-  async initCalendiary (path: string): Promise<CalendiaryConnection> {
+  async initCalendiary (path: string, config: any): Promise<CalendiaryConnection> {
     const database = await sqlite.open(path)
 
+    // @TODO: config를 활용해서 init
     database.migrate({
       force: isDevelopment ? 'last' : undefined,
       migrationsPath: __static + '/migrations/'
