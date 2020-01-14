@@ -4,6 +4,7 @@
   <div class="day-type-select">
     <!-- @TODO: SideBar도 장기적으로 새 창에 띄울 수 있으려면 dumb UI Sidebar 따로 빼야 -->
     <!-- @TODO: Day 스타일링 다양한 색에 대응할 수 있도록 수정 -->
+    <!-- @TODO: Hover시에 label 바뀌게 -->
     <Day
       v-for="(dayType, i) in dayTypes"
       :key="dayType.id"
@@ -61,7 +62,7 @@ export default Vue.extend({
     onDayTypeClicked (id: number) {
       // @TODO: 원래 dayTypeId가 있던 날이 없어져도 괜찮나..? 아닌듯? db에는 어떻게 반영?
       const { year, month, day } = this.selectedDay
-      const offsetFromStartDate = 
+      const offsetFromStartDate =
         isoDateToUnixDate(`${year}-${pad(month + 1)}-${pad(day + 1)}`) -
         this.unixStartDate
       const dayTypeId = ((this as any).dayTypeId === id) ? undefined : id;
@@ -87,13 +88,13 @@ export default Vue.extend({
   .day-type-select {
     position: relative;
     height: 33px;
-    .option-1 { left: 0; }
-    .option-2 { left: 33px; }
-    .option-3 { left: 66px; }
-    .option-4 { left: 99px; }
-    .option-5 { left: 132px; }
-    .option-6 { left: 165px; }
-    .option-7 { left: 198px; }
+    .option-0 { left: 0; }
+    .option-1 { left: 33px; }
+    .option-2 { left: 66px; }
+    .option-3 { left: 99px; }
+    .option-4 { left: 132px; }
+    .option-5 { left: 165px; }
+    .option-6 { left: 198px; }
   }
   .day-type-label {
     font-size: 14px;

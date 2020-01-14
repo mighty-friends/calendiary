@@ -9,11 +9,17 @@
 
       <div class="field is-start-date">
         <div class="label">시작일:</div>
-        <div class="input"><input v-model="startDate" type="date"></div>
+        <div class="input"><input
+          :value="startDate && startDate.toISOString().split('T')[0]"
+          @input="startDate = $event.target.valueAsDate"
+          type="date"></div>
       </div>
       <div class="field is-end-date">
         <div class="label">종료일:</div>
-        <div class="input"><input v-model="endDate" type="date"></div>
+        <div class="input"><input
+          :value="endDate && endDate.toISOString().split('T')[0]"
+          @input="endDate = $event.target.valueAsDate"
+          type="date"></div>
       </div>
 
       <div class="field is-colors">
@@ -22,8 +28,8 @@
       </div>
 
       <div class="field is-save">
-        <button>취소</button>
-        <button @click="save()">확인</button>
+        <!-- @TODO: <button>취소</button> -->
+        <button @click="save()" :disabled="!hasDataFilled">확인</button>
       </div>
     </div>
   </div>
@@ -39,14 +45,26 @@ export default Vue.extend({
       name: '',
       startDate: undefined,
       endDate: undefined
+    } as {
+      name: string,
+      startDate: Date | undefined,
+      endDate: Date | undefined
+    }
+  },
+  computed: {
+    // @TODO: input
+    hasDataFilled (): boolean {
+      return this.name !== '' &&
+        this.startDate !== undefined &&
+        this.endDate !== undefined
     }
   },
   methods: {
     async save () {
       const result = await ipcRenderer.invoke('save-document', {
         name: this.name,
-        startDate: this.startDate,
-        endDate: this.endDate
+        startDate: this.startDate!.getTime() / 1000 / 86400,
+        endDate: this.endDate!.getTime() / 1000 / 86400
       })
       console.log(result)
     }
@@ -147,6 +165,10 @@ export default Vue.extend({
           }
           &:focus {
             background: #323232;
+          }
+          &[disabled] {
+            color: rgb(132, 132, 132);
+            background-color: rgb(91, 91, 91);
           }
         }
       }
