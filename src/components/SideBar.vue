@@ -4,7 +4,8 @@
   <div class="day-type-select">
     <!-- @TODO: SideBar도 장기적으로 새 창에 띄울 수 있으려면 dumb UI Sidebar 따로 빼야 -->
     <!-- @TODO: Day 스타일링 다양한 색에 대응할 수 있도록 수정 -->
-    <!-- @TODO: Hover시에 label 바뀌게 -->
+
+    <!-- @TODO: mouseover vs. mouseenter 퍼포먼스 체크? -->
     <Day
       v-for="(dayType, i) in dayTypes"
       :key="dayType.id"
@@ -12,9 +13,15 @@
       :color="dayType.color"
       :is-selected="dayTypeId === dayType.id"
       @click="onDayTypeClicked(dayType.id)"
+      @mouseover="hoveredDayTypeId = dayType.id"
+      @mouseleave="hoveredDayTypeId = undefined"
     />
   </div>
-  <div class="day-type-label">{{ label }} </div>
+  <div class="day-type-label">{{
+    hoveredDayTypeId !== undefined ?
+    dayTypes.find(dayType => dayType.id === hoveredDayTypeId).name :
+    label
+  }} </div>
   <textarea v-model="text"></textarea>
   <button class="save">저장</button>
 </div>
@@ -32,7 +39,8 @@ export default Vue.extend({
   data () {
     return {
       text: '',
-      dayTypeId: undefined
+      dayTypeId: undefined,
+      hoveredDayTypeId: undefined
     }
   },
   computed: {

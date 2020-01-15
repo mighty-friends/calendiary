@@ -3,7 +3,9 @@
   class="day"
   :class="{ 'is-selected': isSelected}"
   :style="{ 'background-color': `#${color}` }"
-  @click="$emit('click')">
+  @click="$emit('click')"
+  @mouseover="$emit('mouseover')"
+  @mouseleave="$emit('mouseleave')">
   <div v-if="hasDot" class="content-indicator"></div>
 </div>
 </template>
