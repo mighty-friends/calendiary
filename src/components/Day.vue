@@ -18,7 +18,7 @@ export default Vue.extend({
     isSelected: Boolean,
     hasDot: Boolean,
     color: String
-  },
+  }
 })
 </script>
 
